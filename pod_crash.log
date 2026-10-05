@@ -1,0 +1,15 @@
+kubectl describe pod payments-api-7d9f8b-x2k4p
+State:          Waiting
+  Reason:       CrashLoopBackOff
+Last State:     Terminated
+  Reason:       OOMKilled
+  Exit Code:    137
+Limits:
+  memory:  256Mi
+Events:
+  Warning  BackOff  2m (x12 over 10m)  kubelet  Back-off restarting failed container
+
+$ kubectl logs payments-api-7d9f8b-x2k4p --previous
+INFO  Starting payments-api v2.3.1
+INFO  Loading product cache (48,000 items)...
+EOF

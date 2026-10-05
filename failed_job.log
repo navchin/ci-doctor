@@ -1,0 +1,6 @@
+ terraform apply -auto-approve
+aws_s3_bucket.logs: Creating...
+Error: creating S3 Bucket (demo-vendor-logs): AccessDenied: Access Denied
+  status code: 403, request id: 7XK2M9
+  with aws_s3_bucket.logs, on main.tf line 12
+ERROR: Job failed: exit code 1
