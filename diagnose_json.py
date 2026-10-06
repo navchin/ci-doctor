@@ -25,6 +25,11 @@ response = client.messages.create(
     messages=[{"role": "user", "content": f"Diagnose this failure:\n\n{log}"}],
 )
 
+usage = response.usage
+PRICE_IN = 3.00 / 1_000_000    # $ per input token — EXAMPLE, check your model's price
+PRICE_OUT = 15.00 / 1_000_000  # $ per output token — EXAMPLE, check your model's price
+cost = usage.input_tokens * PRICE_IN + usage.output_tokens * PRICE_OUT
+print(f"Tokens: in={usage.input_tokens}  out={usage.output_tokens}  | cost ≈ ${cost:.4f}")
 if response.stop_reason != "end_turn":
     print("Warning: response incomplete:", response.stop_reason)
     sys.exit(1)
