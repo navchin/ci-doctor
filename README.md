@@ -59,6 +59,8 @@ python3 diagnose_k8s.py
 - [x] Post results to Slack
 - [ ] Agent mode: model decides what to inspect next (tool use)
 - [ ] Run automatically in GitLab CI on job failure
+## Slack message screenshot
+<img width="1022" height="229" alt="image" src="https://github.com/user-attachments/assets/183d8233-6175-44b5-ba3e-0c35b4d0f9d5" />
 
 ## Security
 
