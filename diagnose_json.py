@@ -40,3 +40,5 @@ except json.JSONDecodeError:
 
 print(json.dumps(result, indent=2))
 print("\nSeverity:", result["severity"], "| Category:", result["category"])
+
+json.dump(result, open("diagnosis.json", "w"), indent=2)
