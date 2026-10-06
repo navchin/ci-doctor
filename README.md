@@ -58,7 +58,11 @@ python3 diagnose_k8s.py
 - [x] Return a structured JSON diagnosis (`root_cause`, `fix`, `severity`)
 - [x] Post results to Slack
 - [ ] Agent mode: model decides what to inspect next (tool use)
-- [ ] Run automatically in GitLab CI on job failure
+- [x] Run automatically in GitLab CI on job failure
+## How it runs
+build fails → GitHub Actions (`workflow_run`) → fetch log → Claude diagnosis (JSON) → Slack alert
+See [ci-doctor-lab](https://github.com/navchin/ci-doctor-lab) for the live setup.
+
 ## Slack message screenshot
 <img width="1022" height="229" alt="image" src="https://github.com/user-attachments/assets/183d8233-6175-44b5-ba3e-0c35b4d0f9d5" />
 
