@@ -54,7 +54,7 @@ python3 diagnose_k8s.py
 
 - [x] Diagnose Terraform/CI failure logs
 - [x] Diagnose Kubernetes pod crashes
-- [ ] Fetch failed job logs directly from the GitLab API
+- [x] Fetch failed job logs directly from the GitLab API
 - [x] Return a structured JSON diagnosis (`root_cause`, `fix`, `severity`)
 - [ ] Post results to Slack
 - [ ] Agent mode: model decides what to inspect next (tool use)
