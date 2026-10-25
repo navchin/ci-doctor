@@ -1,4 +1,5 @@
 import json
+from validation import validate
 
 DIAGNOSIS_TOOL = {
     "name": "record_diagnosis",
@@ -31,35 +32,43 @@ client = anthropic.Anthropic(
 )
 log = open(sys.argv[1]).read()
 
-response = client.messages.create(
-    model="claude-sonnet-5-5",          # same model as your other scripts
-    max_tokens=2000,
-    #system="You are a senior DevOps and Kubernetes engineer. "
-    #       "Diagnose the failure and record it using the record_diagnosis tool.",
-    system="You are a senior DevOps and Kubernetes engineer. "
-           "You MUST respond by calling the record_diagnosis tool. Do not reply in plain text.",
-    tools=[DIAGNOSIS_TOOL],
-    #tool_choice={"type": "tool", "name": "record_diagnosis"},
-    messages=[{"role": "user", "content": f"Diagnose this failure:\n\n{log}"}],
-)
+def ask_claude(user_text):
+    """Send one request. Return the filled-in form, or None if Claude didn't use the tool."""
+    response = client.messages.create(
+        model="claude-sonnet-5-5",
+        max_tokens=2000,
+        system="You are a senior DevOps and Kubernetes engineer. "
+               "You MUST respond by calling the record_diagnosis tool. Do not reply in plain text.",
+        tools=[DIAGNOSIS_TOOL],
+        messages=[{"role": "user", "content": user_text}],
+    )
+    blocks = [b for b in response.content if b.type == "tool_use"]
+    return blocks[0].input if blocks else None
 
 
-print("[stop reason]:", response.stop_reason)
-for block in response.content:
-    print("[block type]:", block.type)
+request = f"Diagnose this failure:\n\n{log}"
+MAX_ATTEMPTS = 3
 
-tool_blocks = [b for b in response.content if b.type == "tool_use"]
-if not tool_blocks:
-    sys.exit("Model did not fill in the diagnosis form")
+for attempt in range(1, MAX_ATTEMPTS + 1):
+    result = ask_claude(request)
 
-result = tool_blocks[0].input           # already a Python dict — no json.loads needed
-print(json.dumps(result, indent=2))
-json.dump(result, open("diagnosis.json", "w"), indent=2)
+    if result is None:
+        errors = ["You replied in text. You must call the record_diagnosis tool."]
+    else:
+        errors = validate(result, log)
 
-tool_blocks = [b for b in response.content if b.type == "tool_use"]
-if not tool_blocks:
-    sys.exit("Model did not fill in the diagnosis form")
+    print(f"[attempt {attempt}] problems: {errors}")
+    if not errors:
+        break                                   # ✅ all good, stop retrying
 
-result = tool_blocks[0].input
+    # ❌ Build the feedback for the next try: log + previous answer + exact problems
+    request = (f"Diagnose this failure:\n\n{log}\n\n"
+               f"Your previous answer was:\n{json.dumps(result, indent=2)}\n\n"
+               "It has these problems:\n- " + "\n- ".join(errors) +
+               "\n\nFix them and call record_diagnosis again.")
+
+if errors:
+    sys.exit(f"Still invalid after {MAX_ATTEMPTS} attempts: {errors}")
+
 print(json.dumps(result, indent=2))
 json.dump(result, open("diagnosis.json", "w"), indent=2)
